@@ -1,0 +1,28 @@
+power <- read.table("./app.R/energy.txt", 
+                    sep = ";", header = T, na.strings = "?")
+
+power$date <- as.Date(power$Date, format = "%d/%m/%Y")
+
+
+library(dplyr)
+df1 <- filter(power, power$date == "2007-02-01")
+df2 <- filter(power, power$date == "2007-02-02")
+dftt <- merge(df1,df2, all = TRUE)
+
+dftt<-dftt[complete.cases(dftt),]
+dateTime<-paste(dftt$date, dftt$Time)
+dftt <- select(dftt, Global_active_power:date)
+dftt<-cbind(dateTime,dftt)
+dftt$dateTime<-as.POSIXct(dateTime)
+
+with(dftt,{
+        plot(Sub_metering_1 ~ dateTime, type="l", 
+             ylab="Global Active Power(kilowatts)", xlab="")
+        lines(Sub_metering_2 ~ dateTime,col='Red')
+        lines(Sub_metering_3 ~ dateTime,col='Blue')
+legend("topright",col=c("black","red","blue"),
+       lwd=c(1,1,1), c("Sub_metering_1", 
+                       "Sub_metering_2", "Sub_metering_3"))})
+
+dev.copy(png,file = "Plot3.png", width = 480, height = 480)
+dev.off()
