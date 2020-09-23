@@ -1,0 +1,27 @@
+# load data
+power <- read.table("./app.R/energy.txt", 
+                    sep = ";", header = T, na.strings = "?")
+
+power$date <- as.Date(power$Date, format = "%d/%m/%Y")
+
+# load package y select data 
+library(dplyr)
+df1 <- filter(power, power$date == "2007-02-01")
+df2 <- filter(power, power$date == "2007-02-02")
+dftt <- merge(df1,df2, all = TRUE)
+
+dftt<-dftt[complete.cases(dftt),]
+dateTime<-paste(dftt$date, dftt$Time)
+dftt <- select(dftt, Global_active_power:date)
+dftt<-cbind(dateTime,dftt)
+dftt$dateTime<-as.POSIXct(dateTime)
+
+# plot 
+with(dftt, plot(Global_active_power~dateTime, type = "l",
+        
+        ylab ="Global Active Power (killowatts)"
+        ))
+        
+# save image        
+dev.copy(png,file = "Plot2.png", width = 480, height = 480)
+dev.off()
