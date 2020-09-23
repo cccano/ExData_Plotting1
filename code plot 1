@@ -1,0 +1,19 @@
+# load data
+power <- read.table("./app.R/energy.txt", 
+                    sep = ";", header = T, na.strings = "?")
+
+power$date <- as.Date(power$Date, format = "%d/%m/%Y")
+
+# select data
+library(dplyr)
+df1 <- filter(power, power$date == "2007-02-01")
+df2 <- filter(power, power$date == "2007-02-02")
+dftt <- merge(df1,df2, all = TRUE)
+
+# plot histogram
+with(dftt, hist(Global_active_power, col = "red", 
+               main = "Global Active Power", 
+               xlab = "Global Active Power (killowatts)"))
+ # save image              
+dev.copy(png,file = "Plot1.png", width = 480, height = 480)
+dev.off()
